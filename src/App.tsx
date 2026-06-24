@@ -20,6 +20,7 @@ import Reports from '@/pages/Reports';
 import Billing from '@/pages/Billing';
 import AdminPanel from '@/pages/AdminPanel';
 import Settings from '@/pages/Settings';
+import Inbox from '@/pages/Inbox';
 import NotFound from '@/pages/NotFound';
 import type { ReactNode } from 'react';
 
@@ -85,6 +86,7 @@ function AppRoutes() {
         <Route path="/dashboard/ai" element={<DashboardPage><AIAssistant /></DashboardPage>} />
         <Route path="/dashboard/team" element={<DashboardPage><Team /></DashboardPage>} />
         <Route path="/dashboard/reports" element={<DashboardPage><Reports /></DashboardPage>} />
+        <Route path="/dashboard/inbox" element={<DashboardPage><Inbox /></DashboardPage>} />
         <Route path="/dashboard/billing" element={<DashboardPage><Billing /></DashboardPage>} />
         <Route path="/dashboard/settings" element={<DashboardPage><Settings /></DashboardPage>} />
 

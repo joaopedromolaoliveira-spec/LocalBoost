@@ -6,7 +6,7 @@ import {
   LayoutDashboard, MessageSquare, Users, Zap, Megaphone,
   Brain, UserCheck, BarChart3, CreditCard, Settings,
   Shield, ChevronLeft, ChevronRight, LogOut, Wifi,
-  CheckSquare, Activity,
+  CheckSquare, Activity, Inbox,
 } from 'lucide-react';
 
 interface NavItem {
@@ -19,6 +19,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { label: 'Caixa de Entrada', icon: Inbox, href: '/dashboard/inbox' },
   {
     label: 'WhatsApp',
     icon: MessageSquare,

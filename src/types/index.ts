@@ -200,6 +200,93 @@ export interface SupportTicket {
   resolvedAt?: string;
 }
 
+export interface WaContact {
+  id: string;
+  user_id: string;
+  instance_id?: string;
+  phone: string;
+  name?: string;
+  profile_picture_url?: string;
+  tags?: string[];
+  notes?: string;
+  lead_status: 'new' | 'qualified' | 'converted';
+  is_blocked: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WaConversation {
+  id: string;
+  user_id: string;
+  instance_id?: string;
+  contact_id: string;
+  status: 'open' | 'closed' | 'pending';
+  assigned_agent_id?: string;
+  ai_active: boolean;
+  last_message?: string;
+  last_message_at: string;
+  unread_count: number;
+  created_at: string;
+  updated_at: string;
+  wa_contacts?: WaContact;
+}
+
+export interface WaMessage {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  external_id?: string;
+  direction: 'inbound' | 'outbound';
+  sender_type: 'customer' | 'ai' | 'agent' | 'system';
+  content?: string;
+  media_type: string;
+  media_url?: string;
+  status: string;
+  created_at: string;
+}
+
+export interface AiTrainingData {
+  id: string;
+  user_id: string;
+  type: 'faq' | 'product' | 'service' | 'policy' | 'script' | 'info' | 'document';
+  title: string;
+  content: string;
+  file_url?: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AiSettings {
+  id: string;
+  user_id: string;
+  company_name?: string;
+  company_description?: string;
+  ai_name: string;
+  ai_personality: string;
+  greeting_message?: string;
+  handoff_keywords?: string[];
+  auto_respond: boolean;
+  response_delay_seconds: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WhatsAppInstance {
+  id: string;
+  user_id: string;
+  instance_name: string;
+  phone_number?: string;
+  profile_name?: string;
+  profile_picture_url?: string;
+  status: 'disconnected' | 'connecting' | 'qr' | 'connected';
+  qr_code?: string;
+  last_qr_at?: string;
+  provider: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DashboardStats {
   totalMessages: number;
   leadsGenerated: number;

@@ -1,0 +1,100 @@
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders } from '../_shared/cors.ts';
+
+const json = (data: unknown, status = 200) =>
+  new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    const { userId, conversationId, phone, content, senderType = 'agent', mediaType = 'text' } = await req.json();
+
+    if (!userId || !phone || !content) {
+      return json({ error: 'userId, phone e content são obrigatórios' }, 400);
+    }
+
+    // Get user's connected WhatsApp instance
+    const { data: instance } = await supabase
+      .from('whatsapp_instances')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'connected')
+      .maybeSingle();
+
+    if (!instance) {
+      return json({ error: 'WhatsApp não conectado. Conecte seu número primeiro.' }, 400);
+    }
+
+    const evolutionUrl = Deno.env.get('EVOLUTION_API_URL')?.replace(/\/$/, '');
+    const evolutionKey = Deno.env.get('EVOLUTION_API_KEY');
+
+    if (!evolutionUrl || !evolutionKey) {
+      return json({ error: 'Evolution API não configurada' }, 503);
+    }
+
+    // Format phone number (remove non-digits, add country code if needed)
+    let phoneFormatted = phone.replace(/\D/g, '');
+    if (phoneFormatted.length === 11 && phoneFormatted.startsWith('0')) {
+      phoneFormatted = `55${phoneFormatted.slice(1)}`;
+    } else if (phoneFormatted.length <= 11) {
+      phoneFormatted = `55${phoneFormatted}`;
+    }
+
+    console.log(`[whatsapp-send] Sending to ${phoneFormatted} via ${instance.instance_name}`);
+
+    const sendRes = await fetch(`${evolutionUrl}/message/sendText/${instance.instance_name}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': evolutionKey },
+      body: JSON.stringify({ number: phoneFormatted, text: content }),
+    });
+
+    if (!sendRes.ok) {
+      const errText = await sendRes.text();
+      console.error('[whatsapp-send] Evolution API error:', errText);
+      return json({ error: `Evolution API: ${errText}` }, 500);
+    }
+
+    const sendData = await sendRes.json();
+
+    // Save message to DB if conversation exists
+    if (conversationId) {
+      const { data: message, error: msgError } = await supabase
+        .from('wa_messages')
+        .insert({
+          conversation_id: conversationId,
+          user_id: userId,
+          external_id: sendData.key?.id,
+          direction: 'outbound',
+          sender_type: senderType,
+          content,
+          media_type: mediaType,
+          status: 'sent',
+        })
+        .select()
+        .single();
+
+      if (msgError) console.error('[whatsapp-send] DB error:', msgError);
+
+      // Update conversation last message
+      await supabase.from('wa_conversations').update({
+        last_message: content,
+        last_message_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }).eq('id', conversationId);
+
+      return json({ data: message });
+    }
+
+    return json({ data: sendData });
+  } catch (e) {
+    console.error('[whatsapp-send] Error:', e);
+    return json({ error: e.message }, 500);
+  }
+});
