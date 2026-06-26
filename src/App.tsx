@@ -21,6 +21,7 @@ import Billing from '@/pages/Billing';
 import AdminPanel from '@/pages/AdminPanel';
 import Settings from '@/pages/Settings';
 import Inbox from '@/pages/Inbox';
+import WhatsAppDiagnostics from '@/pages/WhatsAppDiagnostics';
 import NotFound from '@/pages/NotFound';
 import type { ReactNode } from 'react';
 
@@ -80,6 +81,7 @@ function AppRoutes() {
         <Route path="/dashboard/whatsapp" element={<DashboardPage><WhatsAppConnect /></DashboardPage>} />
         <Route path="/dashboard/whatsapp/status" element={<DashboardPage><WhatsAppStatus /></DashboardPage>} />
         <Route path="/dashboard/whatsapp/checklist" element={<DashboardPage><MetaChecklist /></DashboardPage>} />
+        <Route path="/dashboard/whatsapp/diagnostics" element={<DashboardPage><WhatsAppDiagnostics /></DashboardPage>} />
         <Route path="/dashboard/crm" element={<DashboardPage><CRM /></DashboardPage>} />
         <Route path="/dashboard/automations" element={<DashboardPage><Automations /></DashboardPage>} />
         <Route path="/dashboard/campaigns" element={<DashboardPage><Campaigns /></DashboardPage>} />

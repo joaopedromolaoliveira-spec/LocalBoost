@@ -44,10 +44,10 @@ serve(async (req) => {
 
     // ─── WAHA ──────────────────────────────────────────────────────
     if (provider === 'waha') {
-      const wahaUrl = Deno.env.get('WAHA_API_URL')?.replace(/\/$/, '');
-      const wahaKey = Deno.env.get('WAHA_API_KEY');
+      const wahaUrl = (Deno.env.get('WAHA_API_URL') || Deno.env.get('WAHA_URL'))?.replace(/\/$/, '');
+      const wahaKey = Deno.env.get('WAHA_API_KEY') || Deno.env.get('WAHA_KEY') || '';
 
-      if (!wahaUrl) return json({ error: 'WAHA_API_URL não configurada' }, 503);
+      if (!wahaUrl) return json({ error: 'WAHA_URL não configurada' }, 503);
 
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (wahaKey) headers['X-Api-Key'] = wahaKey;

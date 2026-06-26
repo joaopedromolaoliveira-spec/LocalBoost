@@ -177,14 +177,16 @@ serve(async (req) => {
 
     if (!userId) return json({ error: 'userId required' }, 400);
 
-    const instanceName = `lb_${userId.replace(/-/g, '').slice(0, 16)}`;
+    // Prefer WAHA_SESSION env var so users can set a fixed session name
+    const wahaSessionEnv = Deno.env.get('WAHA_SESSION') || '';
+    const instanceName = wahaSessionEnv || `lb_${userId.replace(/-/g, '').slice(0, 16)}`;
     const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-webhook`;
 
     // Detect provider — WAHA takes priority if configured
     // Support both WAHA_API_URL and WAHA_URL (legacy) variable names
     const wahaUrl = (Deno.env.get('WAHA_API_URL') || Deno.env.get('WAHA_URL'))?.replace(/\/$/, '');
     // Support both WAHA_API_KEY and WAHA_KEY (legacy) variable names
-    const wahaKey = Deno.env.get('WAHA_API_KEY') || Deno.env.get('WAHA_KEY');
+    const wahaKey = Deno.env.get('WAHA_API_KEY') || Deno.env.get('WAHA_KEY') || '';
     const evolutionUrl = (Deno.env.get('EVOLUTION_API_URL') || Deno.env.get('EVOLUTION_URL'))?.replace(/\/$/, '');
     const evolutionKey = Deno.env.get('EVOLUTION_API_KEY') || Deno.env.get('EVOLUTION_KEY');
 

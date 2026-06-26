@@ -6,7 +6,7 @@ import {
   LayoutDashboard, MessageSquare, Users, Zap, Megaphone,
   Brain, UserCheck, BarChart3, CreditCard, Settings,
   Shield, ChevronLeft, ChevronRight, LogOut, Wifi,
-  CheckSquare, Activity, Inbox,
+  CheckSquare, Activity, Inbox, Stethoscope,
 } from 'lucide-react';
 
 interface NavItem {
@@ -28,6 +28,7 @@ const navItems: NavItem[] = [
       { label: 'Conectar', icon: Wifi, href: '/dashboard/whatsapp' },
       { label: 'Status', icon: Activity, href: '/dashboard/whatsapp/status' },
       { label: 'Checklist Meta', icon: CheckSquare, href: '/dashboard/whatsapp/checklist' },
+      { label: 'Diagnóstico', icon: Stethoscope, href: '/dashboard/whatsapp/diagnostics' },
     ],
   },
   { label: 'CRM / Contatos', icon: Users, href: '/dashboard/crm' },
