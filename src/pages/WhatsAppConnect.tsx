@@ -209,30 +209,36 @@ export default function WhatsAppConnect() {
             <TabsContent value="qr">
               {/* Error state */}
               {qrStatus.status === 'error' && (
-                <div className="mb-5 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-red-600 dark:text-red-400">
-                        {qrStatus.setupRequired ? 'Provedor não configurado' : 'Erro de conexão'}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">{qrStatus.error}</p>
-                      {qrStatus.setupRequired && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Acesse a aba <strong>"Configurar provedor"</strong> e siga as instruções para configurar o WAHA (grátis) ou Evolution API.
+                <div className="mb-5 space-y-3">
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                          {qrStatus.setupRequired ? 'Servidor WAHA inacessível' : 'Erro de conexão'}
                         </p>
-                      )}
+                        <p className="text-xs text-muted-foreground mt-1 font-mono">{qrStatus.error}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                      <Button variant="outline" size="sm" onClick={handleRefreshQR}>
+                        <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setActiveTab('setup')}>
+                        Ver passo a passo
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-3">
-                    <Button variant="outline" size="sm" onClick={handleRefreshQR}>
-                      <RefreshCw className="w-4 h-4 mr-2" /> Tentar novamente
-                    </Button>
-                    {qrStatus.setupRequired && (
-                      <Button size="sm" variant="outline" onClick={() => setActiveTab('setup')}>
-                        Ver configuração
-                      </Button>
-                    )}
+                  {/* Diagnostic checklist */}
+                  <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs">
+                    <p className="font-semibold text-amber-700 dark:text-amber-300 mb-2">✦ Diagnóstico — verifique cada item:</p>
+                    <ol className="space-y-1.5 text-muted-foreground list-decimal list-inside">
+                      <li>O servidor WAHA está <strong>rodando</strong>? (acesse a URL no navegador e veja se responde)</li>
+                      <li>A Secret <code className="bg-muted px-1 rounded">WAHA_URL</code> está salva no painel <strong>Cloud → Secrets</strong>?</li>
+                      <li>A URL <strong>não tem barra</strong> no final? (ex: <code className="bg-muted px-1 rounded">https://waha-xxx.railway.app</code>)</li>
+                      <li>O Railway/Render está no plano <strong>ativo</strong> (não suspenso por inatividade)?</li>
+                      <li>A URL é <strong>pública</strong> (https://)? URLs locais (localhost) não funcionam.</li>
+                    </ol>
                   </div>
                 </div>
               )}

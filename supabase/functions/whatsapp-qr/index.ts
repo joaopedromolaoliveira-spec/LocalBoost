@@ -181,17 +181,21 @@ serve(async (req) => {
     const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/whatsapp-webhook`;
 
     // Detect provider — WAHA takes priority if configured
-    const wahaUrl = Deno.env.get('WAHA_API_URL')?.replace(/\/$/, '');
-    const wahaKey = Deno.env.get('WAHA_API_KEY'); // optional for WAHA
-    const evolutionUrl = Deno.env.get('EVOLUTION_API_URL')?.replace(/\/$/, '');
-    const evolutionKey = Deno.env.get('EVOLUTION_API_KEY');
+    // Support both WAHA_API_URL and WAHA_URL (legacy) variable names
+    const wahaUrl = (Deno.env.get('WAHA_API_URL') || Deno.env.get('WAHA_URL'))?.replace(/\/$/, '');
+    // Support both WAHA_API_KEY and WAHA_KEY (legacy) variable names
+    const wahaKey = Deno.env.get('WAHA_API_KEY') || Deno.env.get('WAHA_KEY');
+    const evolutionUrl = (Deno.env.get('EVOLUTION_API_URL') || Deno.env.get('EVOLUTION_URL'))?.replace(/\/$/, '');
+    const evolutionKey = Deno.env.get('EVOLUTION_API_KEY') || Deno.env.get('EVOLUTION_KEY');
+
+    console.log(`[whatsapp-qr] wahaUrl=${wahaUrl ? wahaUrl.slice(0, 30) + '...' : 'NOT SET'} evolutionUrl=${evolutionUrl ? 'SET' : 'NOT SET'}`);
 
     const provider = wahaUrl ? 'waha' : evolutionUrl ? 'evolution' : null;
 
     if (!provider) {
       return json({
         error: 'Nenhum provedor WhatsApp configurado',
-        details: 'Configure WAHA_API_URL (grátis, recomendado) ou EVOLUTION_API_URL nas Secrets do painel LocalBoost.',
+        details: 'Configure WAHA_URL (ou WAHA_API_URL) nas Secrets do painel LocalBoost. Veja a aba "Configurar provedor" para o passo a passo.',
         setupRequired: true,
         providers: ['waha', 'evolution'],
       }, 503);
@@ -236,7 +240,11 @@ serve(async (req) => {
       if (!session) {
         const code = await wahaCreateSession(wahaUrl!, wahaKey, instanceName, webhookUrl);
         if (code >= 400) {
-          return json({ error: 'WAHA: falha ao criar sessão. Verifique se a URL está correta e o WAHA está rodando.', setupRequired: true }, 502);
+          return json({
+            error: `WAHA: falha ao criar sessão (HTTP ${code}). URL: ${wahaUrl?.slice(0, 40)}`,
+            details: 'Verifique se: 1) o servidor WAHA está rodando, 2) a URL está correta e acessível, 3) não há barra (/) no final da URL.',
+            setupRequired: true,
+          }, 502);
         }
         // Give it a moment to start
         await new Promise(r => setTimeout(r, 2500));
